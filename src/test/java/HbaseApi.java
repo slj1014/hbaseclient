@@ -1,5 +1,6 @@
 import com.wingconn.hbase.entity.CellEntity;
 import com.wingconn.hbase.entity.ColumnFamilyEntity;
+import com.wingconn.hbase.entity.HBasePageModel;
 import com.wingconn.hbase.entity.QualiferEntity;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -53,6 +54,31 @@ public class HbaseApi {
         list.add ("18912711510");
         Result[] results=  HBaseUtil.findByRowKeys ("phone",list);
         for(Result result:results){
+            Cell[] cell=  result.rawCells ();
+            System.out.println("长度：" + cell.length);
+            for (int i = 0; i < cell.length; i++) {
+                System.out.println("信息:"
+                        + new String(CellUtil.cloneFamily(cell[i])) + " "
+                        + new String(CellUtil.cloneQualifier(cell[i]))
+                        + "  " + new String(CellUtil.cloneValue(cell[i]))
+                        + " " + new String(CellUtil.cloneRow(cell[i])));
+            }
+            System.out.println("\n-----------------------");
+        }
+    }
+
+    @Test
+    public void findByRowKey(){
+        Result result= HBaseUtil.findByRowKey ("phone","13013861829");
+        System.out.println ("tel="+new String(CellUtil.cloneValue (result.getColumnLatestCell ("cf1".getBytes (),"tel".getBytes ()))));
+        System.out.println ("owner="+new String(CellUtil.cloneValue (result.getColumnLatestCell ("cf1".getBytes (),"owner".getBytes ()))));
+    }
+
+    @Test
+    public void findByPage(){
+        HBasePageModel pageModel = new HBasePageModel(10);
+        pageModel =HBaseUtil.scanResultByPageFilter("phone",null,null,null,0,pageModel);
+        for(Result result:pageModel.getResultList ()){
             Cell[] cell=  result.rawCells ();
             System.out.println("长度：" + cell.length);
             for (int i = 0; i < cell.length; i++) {
