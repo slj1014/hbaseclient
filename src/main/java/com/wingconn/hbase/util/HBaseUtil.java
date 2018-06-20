@@ -5,6 +5,7 @@ import com.wingconn.hbase.entity.CellEntity;
 import com.wingconn.hbase.entity.ColumnFamilyEntity;
 import com.wingconn.hbase.entity.HBasePageModel;
 import com.wingconn.hbase.entity.QualiferEntity;
+import com.wingconn.hbase.probuf.Person;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -12,6 +13,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -432,4 +434,5 @@ public class HBaseUtil {
         }
         return null;
     }
+
 }

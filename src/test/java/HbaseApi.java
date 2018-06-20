@@ -1,14 +1,21 @@
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.wingconn.hbase.entity.CellEntity;
 import com.wingconn.hbase.entity.ColumnFamilyEntity;
 import com.wingconn.hbase.entity.HBasePageModel;
 import com.wingconn.hbase.entity.QualiferEntity;
+import com.wingconn.hbase.probuf.Person;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
 import org.junit.Before;
 import org.junit.Test;
 import com.wingconn.hbase.util.HBaseUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +30,7 @@ public class HbaseApi {
     @Test
     public void createTable(){
         String[] columnFamliy=new String[]{"cf1"};
-        HBaseUtil.createTable ("phone",columnFamliy);
+        HBaseUtil.createTable ("psn",columnFamliy);
     }
 
     @Test
@@ -115,4 +122,56 @@ public class HbaseApi {
         HBaseUtil.puData ("phone","18912711510",columnFamilyEntities);
     }
 
+    @Test
+    public void savePersonByProbuf(){
+        Person.User.Builder builer=Person.User.newBuilder ();
+        builer.setAddress ("苏州");
+        builer.setAge (12);
+        builer.setUsername ("slj");
+        builer.setEmail ("101@qq.com");
+        Person.User user=builer.build ();
+        Connection conn = HBaseUtil.getConnection ( );
+        Put put = new Put ("0001".getBytes ( ));
+        Table table=null;
+        try {
+              table = conn.getTable(TableName.valueOf("psn"));
+              put.addColumn ("cf1".getBytes ( ), "info".getBytes (), user.toByteArray ());
+              table.put (put);
+        } catch (IOException e) {
+            e.printStackTrace ( );
+        }finally {
+            if(table!=null){
+                try {
+                    table.close ();
+                } catch (IOException e) {
+                    e.printStackTrace ( );
+                }
+            }
+            if(conn!=null){
+                try {
+                    conn.close ();
+                } catch (IOException e) {
+                    e.printStackTrace ( );
+                }
+            }
+        }
+    }
+/*
+    //模拟接收Byte[]，反序列化成Person类
+    byte[] byteArray =person.toByteArray();
+    Person p2 = Person.parseFrom(byteArray);
+        System.out.println("after :" +p2.toString());*/
+
+    @Test
+    public void getByProbuf() throws InvalidProtocolBufferException {
+        Result result= HBaseUtil.findByRowKey ("psn","0001");
+        byte[] personByte= CellUtil.cloneValue (result.getColumnLatestCell ("cf1".getBytes (),"info".getBytes ()));
+        Person.User user=  Person.User.parseFrom (personByte);
+        System.out.println (user.getAddress () );
+      //  System.out.println (user.toString () );
+     }
+
 }
+
+
+

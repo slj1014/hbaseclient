@@ -1,0 +1,8 @@
+package com.wingconn.hbase.probuf
+
+message User{
+  require string username=1;
+  require int32 age=2;
+  require string address=3;
+  optional string email=5; 
+}
